@@ -1,5 +1,5 @@
 export const GameConfig = {
-    arena: { width: 1920, height: 1080, wallThickness: 20 },
+    arena: { width: 1920, height: 1080, wallThickness: 64 },
     design: { width: 1920, height: 1080 },
 
     player: {
