@@ -1,0 +1,23 @@
+# Cocos Creator generated
+library/
+temp/
+local/
+build/
+profiles/v2/
+.creator/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Node
+node_modules/
+
+# npm debug
+npm-debug.log*
