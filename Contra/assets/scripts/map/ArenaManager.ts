@@ -1,4 +1,4 @@
-import { _decorator, Component, Node, Rect, UITransform, view, ResolutionPolicy } from 'cc';
+import { _decorator, Component, Node, Rect, UITransform, view } from 'cc';
 import { GameConfig } from '../config/GameConfig';
 
 const { ccclass, property } = _decorator;
@@ -40,9 +40,10 @@ export class ArenaManager extends Component {
 
     private _layoutArena(): void {
         const { wallThickness } = GameConfig.arena;
-        const visibleSize = view.getVisibleSize();
-        const w = visibleSize.width;
-        const h = visibleSize.height;
+        // Use parent Canvas UITransform size (design resolution), not view pixel size
+        const parentUT = this.node.parent?.getComponent(UITransform);
+        const w = parentUT ? parentUT.contentSize.width : GameConfig.design.width;
+        const h = parentUT ? parentUT.contentSize.height : GameConfig.design.height;
         const halfW = w / 2;
         const halfH = h / 2;
         const halfWall = wallThickness / 2;
