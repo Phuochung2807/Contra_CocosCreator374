@@ -1530,8 +1530,12 @@
     "playerNode": {
       "__id__": 24
     },
-    "bossNode": null,
-    "bulletWorldNode": null,
+    "bossNode": {
+      "__id__": 32
+    },
+    "bulletWorldNode": {
+      "__id__": 40
+    },
     "_id": "513mrWGyZGY5eX9rULAB8N"
   },
   {
