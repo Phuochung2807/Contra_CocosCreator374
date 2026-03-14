@@ -17,6 +17,10 @@ export class BossController extends Component {
     private _health: HealthComponent | null = null;
     private _fsm: BossFSM | null = null;
 
+    get isDashing(): boolean {
+        return this._fsm?.currentActionName === 'dashMove';
+    }
+
     onLoad(): void {
         this._health = this.getComponent(HealthComponent);
     }

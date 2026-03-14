@@ -55,6 +55,11 @@ export const GameConfig = {
         },
     ],
 
+    collision: {
+        playerWeight: 0.7,
+        dashPushMultiplier: 2.5,
+    },
+
     damage: { playerBullet: 10, bossBullet: 15 },
 
     vfx: {

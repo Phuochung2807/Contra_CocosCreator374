@@ -33,6 +33,10 @@ export class BossFSM {
     private _actionQueue: IBossAction[] = [];
     private _cooldownTimer = 0;
 
+    get currentActionName(): string {
+        return this._currentAction?.name ?? '';
+    }
+
     constructor(
         bossNode: Node,
         playerNode: Node,
