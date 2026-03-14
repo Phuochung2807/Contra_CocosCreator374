@@ -1,4 +1,4 @@
-import { _decorator, Component, Node, Rect, UITransform, view } from 'cc';
+import { _decorator, Component, Node, Rect, Sprite, UITransform, view } from 'cc';
 import { GameConfig } from '../config/GameConfig';
 
 const { ccclass, property } = _decorator;
@@ -38,9 +38,17 @@ export class ArenaManager extends Component {
         view.on('canvas-resize', this._layoutArena, this);
     }
 
+    private _setupSprite(node: Node, w: number, h: number): void {
+        const sprite = node.getComponent(Sprite);
+        if (sprite) {
+            sprite.type = Sprite.Type.TILED;
+            sprite.sizeMode = Sprite.SizeMode.CUSTOM;
+        }
+        node.getComponent(UITransform)!.setContentSize(w, h);
+    }
+
     private _layoutArena(): void {
         const { wallThickness } = GameConfig.arena;
-        // Use parent Canvas UITransform size (design resolution), not view pixel size
         const parentUT = this.node.parent?.getComponent(UITransform);
         const w = parentUT ? parentUT.contentSize.width : GameConfig.design.width;
         const h = parentUT ? parentUT.contentSize.height : GameConfig.design.height;
@@ -48,42 +56,31 @@ export class ArenaManager extends Component {
         const halfH = h / 2;
         const halfWall = wallThickness / 2;
 
-        // Floor
         if (this.floor) {
-            const ut = this.floor.getComponent(UITransform)!;
-            ut.setContentSize(w, h);
+            this._setupSprite(this.floor, w, h);
             this.floor.setPosition(0, 0, 0);
         }
 
-        // Top wall
         if (this.wallTop) {
-            const ut = this.wallTop.getComponent(UITransform)!;
-            ut.setContentSize(w, wallThickness);
+            this._setupSprite(this.wallTop, w, wallThickness);
             this.wallTop.setPosition(0, halfH - halfWall, 0);
         }
 
-        // Bottom wall
         if (this.wallBottom) {
-            const ut = this.wallBottom.getComponent(UITransform)!;
-            ut.setContentSize(w, wallThickness);
+            this._setupSprite(this.wallBottom, w, wallThickness);
             this.wallBottom.setPosition(0, -halfH + halfWall, 0);
         }
 
-        // Left wall
         if (this.wallLeft) {
-            const ut = this.wallLeft.getComponent(UITransform)!;
-            ut.setContentSize(wallThickness, h);
+            this._setupSprite(this.wallLeft, wallThickness, h);
             this.wallLeft.setPosition(-halfW + halfWall, 0, 0);
         }
 
-        // Right wall
         if (this.wallRight) {
-            const ut = this.wallRight.getComponent(UITransform)!;
-            ut.setContentSize(wallThickness, h);
+            this._setupSprite(this.wallRight, wallThickness, h);
             this.wallRight.setPosition(halfW - halfWall, 0, 0);
         }
 
-        // Playable bounds (inside walls)
         const xMin = -halfW + wallThickness;
         const yMin = -halfH + wallThickness;
         this._bounds.set(xMin, yMin, w - 2 * wallThickness, h - 2 * wallThickness);
