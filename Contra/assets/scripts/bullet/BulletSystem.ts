@@ -5,8 +5,6 @@ import { ArenaManager } from '../map/ArenaManager';
 
 const { ccclass, property } = _decorator;
 
-const OOB_MARGIN = 50;
-
 @ccclass('BulletSystem')
 export class BulletSystem extends Component {
     @property(BulletPool)
@@ -28,7 +26,7 @@ export class BulletSystem extends Component {
             // Lifetime check
             d.elapsed += dt;
             if (d.elapsed >= d.lifetime) {
-                this.pool.release(d);
+                this.pool.fadeRelease(d);
                 continue;
             }
 
@@ -36,11 +34,11 @@ export class BulletSystem extends Component {
             d.posX += d.velX * d.speed * dt;
             d.posY += d.velY * d.speed * dt;
 
-            // OOB check
+            // Wall collision — release when hitting arena bounds
             if (bounds) {
-                if (d.posX < bounds.xMin - OOB_MARGIN || d.posX > bounds.xMax + OOB_MARGIN ||
-                    d.posY < bounds.yMin - OOB_MARGIN || d.posY > bounds.yMax + OOB_MARGIN) {
-                    this.pool.release(d);
+                if (d.posX - d.radius < bounds.xMin || d.posX + d.radius > bounds.xMax ||
+                    d.posY - d.radius < bounds.yMin || d.posY + d.radius > bounds.yMax) {
+                    this.pool.fadeRelease(d);
                     continue;
                 }
             }

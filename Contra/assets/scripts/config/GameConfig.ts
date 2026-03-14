@@ -38,7 +38,7 @@ export const GameConfig = {
         spawnPos: { x: 0, y: 300 },
     },
 
-    bullet: { poolSize: 500 },
+    bullet: { poolSize: 100 },
 
     levels: [
         {
