@@ -36,8 +36,11 @@ export class GameManager extends Component {
     onLoad(): void {
         GameManager._instance = this;
         this._state = GameState.Init;
+    }
 
-        console.log('GameManager loaded, state:', this._state);
+    start(): void {
+        // Auto-start for testing (will be replaced by Start Screen in Phase 5)
+        this.startGame();
     }
 
     changeState(newState: GameState): void {
