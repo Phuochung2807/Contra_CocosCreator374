@@ -41,6 +41,9 @@ export class GameManager extends Component {
     start(): void {
         // Auto-start for testing (will be replaced by Start Screen in Phase 5)
         this.startGame();
+
+        EventManager.on('player_died', this._onPlayerDied, this);
+        EventManager.on('boss_died', this._onBossDied, this);
     }
 
     changeState(newState: GameState): void {
@@ -57,7 +60,18 @@ export class GameManager extends Component {
         this.changeState(GameState.Playing);
     }
 
+    private _onPlayerDied(): void {
+        this.changeState(GameState.Lose);
+    }
+
+    private _onBossDied(): void {
+        this.changeState(GameState.Win);
+    }
+
     onDestroy(): void {
+        EventManager.off('player_died', this._onPlayerDied, this);
+        EventManager.off('boss_died', this._onBossDied, this);
+
         if (GameManager._instance === this) {
             GameManager._instance = null;
         }
