@@ -36,6 +36,8 @@ export class GameManager extends Component {
     onLoad(): void {
         GameManager._instance = this;
         this._state = GameState.Init;
+
+        console.log('GameManager loaded, state:', this._state);
     }
 
     changeState(newState: GameState): void {
