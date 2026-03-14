@@ -1,4 +1,4 @@
-import { _decorator, Component, Sprite, SpriteFrame, Color, Node, UITransform, UIOpacity, tween, Tween, Size } from 'cc';
+import { _decorator, Component, Sprite, SpriteFrame, Color, Node, UITransform, UIOpacity, tween, Tween, Size, Vec3 } from 'cc';
 import { EventManager } from '../core/EventManager';
 import { GameConfig } from '../config/GameConfig';
 
@@ -6,39 +6,17 @@ const { ccclass, property } = _decorator;
 
 const COLOR_WHITE = new Color(255, 255, 255, 255);
 const COLOR_FLASH = new Color(255, 100, 100, 255);
+const SCALE_ONE = new Vec3(1, 1, 1);
+const SCALE_BOUNCE = new Vec3(1.15, 1.15, 1);
 
-@ccclass('BossVisual')
-export class BossVisual extends Component {
-    @property(SpriteFrame)
-    spriteHighHP: SpriteFrame | null = null;
-
-    @property(SpriteFrame)
-    spriteMediumHP: SpriteFrame | null = null;
-
-    @property(SpriteFrame)
-    spriteLowHP: SpriteFrame | null = null;
-
+@ccclass('PlayerVisual')
+export class PlayerVisual extends Component {
     @property(SpriteFrame)
     glowSpriteFrame: SpriteFrame | null = null;
 
     private _sprite: Sprite | null = null;
     private _glowOpacity: UIOpacity | null = null;
     private _glowNode: Node | null = null;
-
-    private _onPhaseChanged = (phase: string): void => {
-        if (!this._sprite) return;
-        switch (phase) {
-            case 'MediumHP':
-                this._sprite.spriteFrame = this.spriteMediumHP;
-                break;
-            case 'LowHP':
-                this._sprite.spriteFrame = this.spriteLowHP;
-                break;
-            default:
-                this._sprite.spriteFrame = this.spriteHighHP;
-                break;
-        }
-    };
 
     private _onHit = (_damage: number): void => {
         if (!this._sprite) return;
@@ -48,6 +26,14 @@ export class BossVisual extends Component {
                 this._sprite.color = COLOR_WHITE;
             }
         }, GameConfig.vfx.hitFlashDuration);
+
+        // Bounce effect
+        Tween.stopAllByTarget(this.node);
+        this.node.setScale(SCALE_ONE);
+        tween(this.node)
+            .to(0.06, { scale: SCALE_BOUNCE }, { easing: 'sineOut' })
+            .to(0.1, { scale: SCALE_ONE }, { easing: 'sineIn' })
+            .start();
 
         if (this._glowNode && this._glowOpacity) {
             Tween.stopAllByTarget(this._glowOpacity);
@@ -64,13 +50,13 @@ export class BossVisual extends Component {
         this._sprite = this.getComponent(Sprite);
 
         if (this.glowSpriteFrame) {
-            const glowNode = new Node('BossGlow');
+            const glowNode = new Node('PlayerGlow');
             this.node.addChild(glowNode);
             const glowSprite = glowNode.addComponent(Sprite);
             glowSprite.spriteFrame = this.glowSpriteFrame;
             glowSprite.sizeMode = Sprite.SizeMode.CUSTOM;
             const ut = glowNode.addComponent(UITransform);
-            ut.contentSize = new Size(108, 108);
+            ut.contentSize = new Size(87, 87);
             this._glowOpacity = glowNode.addComponent(UIOpacity);
             this._glowOpacity.opacity = 0;
             glowNode.active = false;
@@ -79,19 +65,19 @@ export class BossVisual extends Component {
     }
 
     onEnable(): void {
-        EventManager.on('boss_phase_changed', this._onPhaseChanged);
-        EventManager.on('bullet_hit_boss', this._onHit);
+        EventManager.on('bullet_hit_player', this._onHit);
     }
 
     onDisable(): void {
-        EventManager.off('boss_phase_changed', this._onPhaseChanged);
-        EventManager.off('bullet_hit_boss', this._onHit);
+        EventManager.off('bullet_hit_player', this._onHit);
+        Tween.stopAllByTarget(this.node);
         if (this._glowOpacity) Tween.stopAllByTarget(this._glowOpacity);
     }
 
     resetVisual(): void {
+        Tween.stopAllByTarget(this.node);
+        this.node.setScale(SCALE_ONE);
         if (this._sprite) {
-            this._sprite.spriteFrame = this.spriteHighHP;
             this._sprite.color = COLOR_WHITE;
         }
         if (this._glowOpacity) {

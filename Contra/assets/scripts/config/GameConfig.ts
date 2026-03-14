@@ -59,6 +59,8 @@ export const GameConfig = {
 
     vfx: {
         hitFlashDuration: 0.1,
+        glowFadeDuration: 0.25,
+        glowMaxOpacity: 200,
         screenShakeSmall: 3,
         screenShakeMedium: 6,
         screenShakeLarge: 12,
