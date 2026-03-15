@@ -3,12 +3,12 @@ export const GameConfig = {
     design: { width: 1920, height: 1080 },
 
     player: {
-        speed: 200,
-        hp: 100,
+        speed: 312,
+        hp: 80,
         size: { width: 48, height: 48 },
         colliderRadius: 20,
-        shootCooldown: 0.15,
-        shootRange: 150,
+        shootCooldown: 0.35,
+        shootRange: 450,
         bulletSpeed: 800,
         bulletRadius: 8,
         bulletLifetime: 2.0,
@@ -42,15 +42,15 @@ export const GameConfig = {
 
     levels: [
         {
-            level: 1, bossHP: 150, bossSpeedMult: 1.0, bulletSpeedMult: 1.0, bulletCountMult: 1.0,
+            level: 1, bossHP: 350, bossSpeedMult: 1.5, bulletSpeedMult: 1.2, bulletCountMult: 2.0,
             allowedActions: ['normalMove', 'normalShoot'],
         },
         {
-            level: 2, bossHP: 250, bossSpeedMult: 1.2, bulletSpeedMult: 1.1, bulletCountMult: 1.0,
+            level: 2, bossHP: 550, bossSpeedMult: 2.0, bulletSpeedMult: 1.5, bulletCountMult: 3.0,
             allowedActions: ['normalMove', 'dashMove', 'normalShoot', 'crazyShoot'],
         },
         {
-            level: 3, bossHP: 400, bossSpeedMult: 1.4, bulletSpeedMult: 1.2, bulletCountMult: 1.5,
+            level: 3, bossHP: 800, bossSpeedMult: 3.0, bulletSpeedMult: 1.9, bulletCountMult: 4.0,
             allowedActions: ['normalMove', 'dashMove', 'normalShoot', 'crazyShoot'],
         },
     ],
