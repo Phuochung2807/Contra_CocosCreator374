@@ -2,6 +2,7 @@ import { _decorator, Component, Node } from 'cc';
 import { BulletPool } from '../bullet/BulletPool';
 import { BulletFactory } from '../bullet/BulletFactory';
 import { BulletOwner } from '../bullet/BulletData';
+import { GameConfig } from '../config/GameConfig';
 import { GameManager, GameState } from '../core/GameManager';
 
 const { ccclass, property } = _decorator;
@@ -41,6 +42,15 @@ export class ShootComponent extends Component {
     start(): void {
         if (this.bulletPoolNode) {
             this._pool = this.bulletPoolNode.getComponent(BulletPool);
+        }
+        // Apply config as defaults — Inspector values override if changed
+        if (this.owner === BulletOwner.Player) {
+            this.cooldown = GameConfig.player.shootCooldown;
+            this.range = GameConfig.player.shootRange;
+            this.bulletSpeed = GameConfig.player.bulletSpeed;
+            this.bulletRadius = GameConfig.player.bulletRadius;
+            this.bulletLifetime = GameConfig.player.bulletLifetime;
+            this.bulletDamage = GameConfig.damage.playerBullet;
         }
     }
 
