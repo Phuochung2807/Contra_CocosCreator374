@@ -1,4 +1,4 @@
-import { _decorator, Component, Node, EventTouch, Vec2, Vec3, UITransform, UIOpacity, tween, Tween } from 'cc';
+import { _decorator, Component, Node, EventTouch, Vec2, Vec3, UITransform, UIOpacity } from 'cc';
 import { IInputSource } from './IInputSource';
 import { EventManager } from '../../core/EventManager';
 import { GameManager, GameState } from '../../core/GameManager';
@@ -31,13 +31,14 @@ export class JoystickInput extends Component implements IInputSource {
     private _moveDir: Vec2 = new Vec2(0, 0);
     private _dashPressed = false;
     private _tracking = false;
-    private _outerRingUT: UITransform | null = null;
     private _parentUT: UITransform | null = null;
     private _opacity: UIOpacity | null = null;
+    private _touchStartUI: Vec2 = new Vec2();
+    private _fadeTarget = 0;
+    private _fadeSpeed = 0;
 
     onLoad(): void {
         if (this.outerRing) {
-            this._outerRingUT = this.outerRing.getComponent(UITransform);
             this._opacity = this.outerRing.getComponent(UIOpacity) || this.outerRing.addComponent(UIOpacity);
             this._opacity.opacity = 0;
             if (this.outerRing.parent) {
@@ -106,15 +107,18 @@ export class JoystickInput extends Component implements IInputSource {
 
         this._tracking = true;
 
-        // Move joystick to touch position
+        // Remember touch origin in UI (screen) space
         const touch = event.getUILocation();
+        this._touchStartUI.set(touch.x, touch.y);
+
+        // Move entire joystick to touch position
         if (this._parentUT) {
             _tmpWorldPos.set(touch.x, touch.y, 0);
             this._parentUT.convertToNodeSpaceAR(_tmpWorldPos, _tmpLocalPos);
             this.outerRing.setPosition(_tmpLocalPos.x, _tmpLocalPos.y, 0);
         }
 
-        // Reset knob
+        // Reset knob to center of outerRing
         this.innerKnob.setPosition(0, 0, 0);
         this._moveDir.x = 0;
         this._moveDir.y = 0;
@@ -141,17 +145,13 @@ export class JoystickInput extends Component implements IInputSource {
     }
 
     private _updateKnob(event: EventTouch): void {
-        if (!this.outerRing || !this.innerKnob) return;
+        if (!this.innerKnob) return;
 
-        const ut = this._outerRingUT;
-        if (!ut) return;
-
+        // Offset from touch-start in screen-space = offset in local-space
+        // (UI coordinate system has same scale/rotation as local joystick space)
         const touch = event.getUILocation();
-        _tmpWorldPos.set(touch.x, touch.y, 0);
-        ut.convertToNodeSpaceAR(_tmpWorldPos, _tmpLocalPos);
-
-        const dx = _tmpLocalPos.x;
-        const dy = _tmpLocalPos.y;
+        const dx = touch.x - this._touchStartUI.x;
+        const dy = touch.y - this._touchStartUI.y;
         const dist = Math.sqrt(dx * dx + dy * dy);
 
         if (dist < DEAD_ZONE) {
@@ -171,20 +171,29 @@ export class JoystickInput extends Component implements IInputSource {
         this._moveDir.y = dy / dist;
     }
 
+    update(dt: number): void {
+        if (!this._opacity || this._fadeSpeed === 0) return;
+        const cur = this._opacity.opacity;
+        if ((this._fadeSpeed > 0 && cur >= this._fadeTarget) ||
+            (this._fadeSpeed < 0 && cur <= this._fadeTarget)) {
+            this._opacity.opacity = this._fadeTarget;
+            this._fadeSpeed = 0;
+            return;
+        }
+        this._opacity.opacity = Math.round(Math.min(255, Math.max(0, cur + this._fadeSpeed * dt)));
+    }
+
     private _fadeIn(): void {
         if (!this._opacity) return;
-        Tween.stopAllByTarget(this._opacity);
-        tween(this._opacity)
-            .to(FADE_IN_DURATION, { opacity: 255 })
-            .start();
+        this._opacity.opacity = 255;
+        this._fadeTarget = 255;
+        this._fadeSpeed = 0;
     }
 
     private _fadeOut(): void {
         if (!this._opacity) return;
-        Tween.stopAllByTarget(this._opacity);
-        tween(this._opacity)
-            .to(FADE_OUT_DURATION, { opacity: 0 })
-            .start();
+        this._fadeTarget = 0;
+        this._fadeSpeed = -255 / FADE_OUT_DURATION;
     }
 
     private _onDashPressed(): void {
