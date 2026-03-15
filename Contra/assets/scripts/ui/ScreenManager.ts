@@ -1,11 +1,16 @@
-import { _decorator, Component, Node, Button } from 'cc';
+import { _decorator, Component, Node, Button, UIOpacity, BlockInputEvents, tween, Tween } from 'cc';
 import { EventManager } from '../core/EventManager';
 import { GameState } from '../core/GameManager';
 
 const { ccclass, property } = _decorator;
 
+const FADE_DURATION = 0.2;
+
 @ccclass('ScreenManager')
 export class ScreenManager extends Component {
+    @property(Node)
+    backer: Node | null = null;
+
     @property(Node)
     startScreen: Node | null = null;
 
@@ -30,11 +35,22 @@ export class ScreenManager extends Component {
     private _onPlay: (() => void) | null = null;
     private _onNextLevel: (() => void) | null = null;
     private _onRestart: (() => void) | null = null;
+    private _backerOpacity: UIOpacity | null = null;
 
     setCallbacks(onPlay: () => void, onNext: () => void, onRestart: () => void): void {
         this._onPlay = onPlay;
         this._onNextLevel = onNext;
         this._onRestart = onRestart;
+    }
+
+    onLoad(): void {
+        if (this.backer) {
+            this._backerOpacity = this.backer.getComponent(UIOpacity) || this.backer.addComponent(UIOpacity);
+            // Ensure backer blocks input to layers below
+            if (!this.backer.getComponent(BlockInputEvents)) {
+                this.backer.addComponent(BlockInputEvents);
+            }
+        }
     }
 
     onEnable(): void {
@@ -53,8 +69,7 @@ export class ScreenManager extends Component {
             this.restartFromWinButton.node.on(Button.EventType.CLICK, this._onRestartClicked, this);
         }
 
-        // Show start screen by default
-        this._showScreen('Init');
+        this._showScreen(GameState.Init);
     }
 
     onDisable(): void {
@@ -79,9 +94,45 @@ export class ScreenManager extends Component {
     };
 
     private _showScreen(state: string): void {
-        if (this.startScreen) this.startScreen.active = (state === GameState.Init);
-        if (this.winScreen) this.winScreen.active = (state === GameState.Win);
-        if (this.loseScreen) this.loseScreen.active = (state === GameState.Lose);
+        const hasScreen = state !== GameState.Playing;
+        const activeScreen = state === GameState.Init ? this.startScreen
+            : state === GameState.Win ? this.winScreen
+            : state === GameState.Lose ? this.loseScreen
+            : null;
+
+        // Hide all screens first
+        if (this.startScreen) this.startScreen.active = false;
+        if (this.winScreen) this.winScreen.active = false;
+        if (this.loseScreen) this.loseScreen.active = false;
+
+        if (hasScreen && activeScreen) {
+            // Reorder: backer sits above HUD, screen sits above backer
+            this._showBacker();
+            activeScreen.active = true;
+            if (this.backer) {
+                activeScreen.setSiblingIndex(this.backer.getSiblingIndex() + 1);
+            }
+        } else {
+            this._hideBacker();
+        }
+    }
+
+    private _showBacker(): void {
+        if (!this.backer || !this._backerOpacity) return;
+        this.backer.active = true;
+        Tween.stopAllByTarget(this._backerOpacity);
+        tween(this._backerOpacity)
+            .to(FADE_DURATION, { opacity: 150 })
+            .start();
+    }
+
+    private _hideBacker(): void {
+        if (!this.backer || !this._backerOpacity) return;
+        Tween.stopAllByTarget(this._backerOpacity);
+        tween(this._backerOpacity)
+            .to(FADE_DURATION, { opacity: 0 })
+            .call(() => { if (this.backer) this.backer.active = false; })
+            .start();
     }
 
     private _onPlayClicked(): void {
