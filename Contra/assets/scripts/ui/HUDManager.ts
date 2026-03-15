@@ -95,7 +95,7 @@ export class HUDManager extends Component {
             w.isAlignLeft = true;
             w.isAlignRight = true;
             w.isAlignBottom = false;
-            w.top = MARGIN;
+            w.top = MARGIN * 2;
             w.left = 0;
             w.right = 0;
             w.alignMode = Widget.AlignMode.ON_WINDOW_RESIZE;
