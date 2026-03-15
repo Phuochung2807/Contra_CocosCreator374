@@ -52,6 +52,6 @@ assets/scripts/
 > Requires **Cocos Creator 3.7.4**
 
 1. Clone the repository
-2. Open `Shooter/Contra/` folder in Cocos Creator
+2. Open `Contra/` folder in Cocos Creator
 3. Open `assets/scenes/GameScene.scene`
 4. Click **Play** in the editor
