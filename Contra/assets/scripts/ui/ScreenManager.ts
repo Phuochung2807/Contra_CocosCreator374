@@ -29,9 +29,6 @@ export class ScreenManager extends Component {
     @property(Button)
     restartButton: Button | null = null;
 
-    @property(Button)
-    restartFromWinButton: Button | null = null;
-
     private _onPlay: (() => void) | null = null;
     private _onNextLevel: (() => void) | null = null;
     private _onRestart: (() => void) | null = null;
@@ -65,9 +62,6 @@ export class ScreenManager extends Component {
         if (this.restartButton) {
             this.restartButton.node.on(Button.EventType.CLICK, this._onRestartClicked, this);
         }
-        if (this.restartFromWinButton) {
-            this.restartFromWinButton.node.on(Button.EventType.CLICK, this._onRestartClicked, this);
-        }
 
         this._showScreen(GameState.Init);
     }
@@ -83,9 +77,6 @@ export class ScreenManager extends Component {
         }
         if (this.restartButton) {
             this.restartButton.node.off(Button.EventType.CLICK, this._onRestartClicked, this);
-        }
-        if (this.restartFromWinButton) {
-            this.restartFromWinButton.node.off(Button.EventType.CLICK, this._onRestartClicked, this);
         }
     }
 
