@@ -7,7 +7,7 @@
 <!-- Replace with actual screenshot -->
 ![Gameplay Screenshot](screenshots/gameplay.png)
 
-**[Play Web Build]()** | **[Download APK]()**
+**[Play Web Build](https://phuochung2807.itch.io/bullet-hell)** | **Download APK (Coming Soon)**
 
 ## Features
 
