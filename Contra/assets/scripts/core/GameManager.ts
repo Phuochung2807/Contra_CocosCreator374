@@ -5,6 +5,7 @@ import { HealthComponent } from '../entity/HealthComponent';
 import { BossController } from '../boss/BossController';
 import { BossVisual } from '../boss/BossVisual';
 import { PlayerVisual } from '../player/PlayerVisual';
+import { PlayerDash } from '../player/PlayerDash';
 import { BulletPool } from '../bullet/BulletPool';
 
 const { ccclass, property } = _decorator;
@@ -70,6 +71,8 @@ export class GameManager extends Component {
             if (playerHealth) playerHealth.reset(GameConfig.player.hp);
             const playerVisual = this.playerNode.getComponent(PlayerVisual);
             if (playerVisual) playerVisual.resetVisual();
+            const playerDash = this.playerNode.getComponent(PlayerDash);
+            if (playerDash) playerDash.resetDash();
         }
 
         // Reset boss
