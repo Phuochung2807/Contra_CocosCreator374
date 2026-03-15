@@ -68,11 +68,11 @@ export class PlayerDash extends Component {
     }
 
     private _handleReady(): void {
-        if (!this._controller?.inputSource) return;
-        if (!this._controller.inputSource.isDashPressed()) return;
+        if (!this._controller) return;
+        if (!this._controller.isDashPressed()) return;
 
         // Lock direction from current movement
-        const move = this._controller.inputSource.getMovement();
+        const move = this._controller.getMovement();
         if (move.x !== 0 || move.y !== 0) {
             const len = Math.sqrt(move.x * move.x + move.y * move.y);
             this._dirX = move.x / len;
