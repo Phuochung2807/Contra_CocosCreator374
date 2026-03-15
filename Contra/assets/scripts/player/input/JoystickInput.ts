@@ -1,5 +1,7 @@
 import { _decorator, Component, Node, EventTouch, Vec2, Vec3, UITransform, UIOpacity, tween, Tween } from 'cc';
 import { IInputSource } from './IInputSource';
+import { EventManager } from '../../core/EventManager';
+import { GameManager, GameState } from '../../core/GameManager';
 
 const { ccclass, property } = _decorator;
 
@@ -42,9 +44,12 @@ export class JoystickInput extends Component implements IInputSource {
                 this._parentUT = this.outerRing.parent.getComponent(UITransform);
             }
         }
+        // Start disabled — only active during Playing
+        this._setActive(false);
     }
 
     onEnable(): void {
+        EventManager.on('game_state_changed', this._onStateChanged);
         if (this.touchArea) {
             this.touchArea.on(Node.EventType.TOUCH_START, this._onTouchStart, this);
             this.touchArea.on(Node.EventType.TOUCH_MOVE, this._onTouchMove, this);
@@ -57,6 +62,7 @@ export class JoystickInput extends Component implements IInputSource {
     }
 
     onDisable(): void {
+        EventManager.off('game_state_changed', this._onStateChanged);
         if (this.touchArea) {
             this.touchArea.off(Node.EventType.TOUCH_START, this._onTouchStart, this);
             this.touchArea.off(Node.EventType.TOUCH_MOVE, this._onTouchMove, this);
@@ -65,6 +71,21 @@ export class JoystickInput extends Component implements IInputSource {
         }
         if (this.dashButton) {
             this.dashButton.off(Node.EventType.TOUCH_START, this._onDashPressed, this);
+        }
+    }
+
+    private _onStateChanged = (state: string): void => {
+        this._setActive(state === GameState.Playing);
+    };
+
+    private _setActive(active: boolean): void {
+        if (this.touchArea) this.touchArea.active = active;
+        if (!active) {
+            this._tracking = false;
+            this._moveDir.x = 0;
+            this._moveDir.y = 0;
+            if (this.innerKnob) this.innerKnob.setPosition(0, 0, 0);
+            if (this._opacity) this._opacity.opacity = 0;
         }
     }
 
