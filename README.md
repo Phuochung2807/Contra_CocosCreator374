@@ -11,7 +11,7 @@
 
 ## Features
 
-- **Player**: WASD/Arrow keys + touch joystick, auto-shoot, dash with invincibility frames
+- **Player**: WASD/Arrow keys + touch joystick, auto-shoot, Space to dash with invincibility frames
 - **Boss AI**: 3-phase FSM (High/Medium/Low HP) with escalating aggression
   - NormalMove → DashMove, NormalShoot (6-bullet fan) → CrazyShoot (18-bullet fan)
 - **Bullet System**: ECS-inspired architecture — pure data components (BulletData) processed by independent systems (BulletSystem, CollisionSystem), object pool with SpriteFrame swap, no per-frame getComponent
