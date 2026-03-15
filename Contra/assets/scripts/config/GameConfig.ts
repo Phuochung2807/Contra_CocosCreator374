@@ -42,7 +42,7 @@ export const GameConfig = {
 
     levels: [
         {
-            level: 1, bossHP: 350, bossSpeedMult: 1.5, bulletSpeedMult: 1.2, bulletCountMult: 2.0,
+            level: 1, bossHP: 350, bossSpeedMult: 1.5, bulletSpeedMult: 1.0, bulletCountMult: 2.0,
             allowedActions: ['normalMove', 'normalShoot'],
         },
         {
@@ -61,6 +61,14 @@ export const GameConfig = {
     },
 
     damage: { playerBullet: 10, bossBullet: 15 },
+
+    transition: {
+        deathBlinkCount: 7,
+        deathBlinkDuration: 1.0,
+        introScaleDuration: 0.4,
+        introDelayBetween: 0.5,
+        bossSpawnRadius: 400,
+    },
 
     vfx: {
         hitFlashDuration: 0.1,

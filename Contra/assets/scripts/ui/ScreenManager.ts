@@ -85,7 +85,8 @@ export class ScreenManager extends Component {
     };
 
     private _showScreen(state: string): void {
-        const hasScreen = state !== GameState.Playing;
+        const noOverlay = [GameState.Playing, GameState.Intro, GameState.Dying];
+        const hasScreen = !noOverlay.includes(state as GameState);
         const activeScreen = state === GameState.Init ? this.startScreen
             : state === GameState.Win ? this.winScreen
             : state === GameState.Lose ? this.loseScreen

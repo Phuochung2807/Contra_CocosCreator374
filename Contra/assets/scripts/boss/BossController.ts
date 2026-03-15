@@ -65,6 +65,11 @@ export class BossController extends Component {
         this.getComponent(BossVisual)?.resetVisual();
     }
 
+    resetBossData(): void {
+        if (this._health) this._health.reset();
+        if (this._fsm) this._fsm.reset();
+    }
+
     resetBoss(spawnX: number, spawnY: number): void {
         this.node.setPosition(spawnX, spawnY, 0);
         if (this._health) {

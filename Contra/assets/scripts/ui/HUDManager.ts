@@ -53,7 +53,8 @@ export class HUDManager extends Component {
     }
 
     private _onStateChanged = (state: string): void => {
-        this._setVisible(state === GameState.Playing);
+        const visible = state === GameState.Playing || state === GameState.Intro || state === GameState.Dying;
+        this._setVisible(visible);
     };
 
     private _setVisible(visible: boolean): void {

@@ -1,5 +1,6 @@
 import { _decorator, Component, Node } from 'cc';
 import { EventManager } from './EventManager';
+import { TransitionController } from './TransitionController';
 import { GameConfig } from '../config/GameConfig';
 import { HealthComponent } from '../entity/HealthComponent';
 import { BossController } from '../boss/BossController';
@@ -12,7 +13,9 @@ const { ccclass, property } = _decorator;
 
 export enum GameState {
     Init = 'Init',
+    Intro = 'Intro',
     Playing = 'Playing',
+    Dying = 'Dying',
     Win = 'Win',
     Lose = 'Lose',
 }
@@ -34,6 +37,9 @@ export class GameManager extends Component {
     @property(Node)
     bulletWorldNode: Node | null = null;
 
+    @property(TransitionController)
+    transitionCtrl: TransitionController | null = null;
+
     private _state: GameState = GameState.Init;
 
     get state(): GameState {
@@ -47,6 +53,11 @@ export class GameManager extends Component {
         EventManager.on('boss_died', this._onBossDied);
     }
 
+    start(): void {
+        // Hide entities on scene load (Init state)
+        if (this.transitionCtrl) this.transitionCtrl.hideEntities();
+    }
+
     changeState(newState: GameState): void {
         if (this._state === newState) return;
         this._state = newState;
@@ -54,19 +65,28 @@ export class GameManager extends Component {
     }
 
     startGame(): void {
+        if (this.transitionCtrl) this.transitionCtrl.cancelAll();
         this._resetAll();
-        this.changeState(GameState.Playing);
+        if (this.transitionCtrl) this.transitionCtrl.hideEntities();
+        this.changeState(GameState.Intro);
+        if (this.transitionCtrl) {
+            this.transitionCtrl.playIntro(() => {
+                if (this._state === GameState.Intro) {
+                    this.changeState(GameState.Playing);
+                }
+            });
+        } else {
+            this.changeState(GameState.Playing);
+        }
     }
 
     restartGame(): void {
-        this._resetAll();
-        this.changeState(GameState.Playing);
+        this.startGame();
     }
 
     private _resetAll(): void {
-        // Reset player
+        // Reset player (data only, no position — TransitionController handles visibility)
         if (this.playerNode) {
-            this.playerNode.setPosition(0, -300, 0);
             const playerHealth = this.playerNode.getComponent(HealthComponent);
             if (playerHealth) playerHealth.reset(GameConfig.player.hp);
             const playerVisual = this.playerNode.getComponent(PlayerVisual);
@@ -75,10 +95,10 @@ export class GameManager extends Component {
             if (playerDash) playerDash.resetDash();
         }
 
-        // Reset boss
+        // Reset boss (data only)
         if (this.bossNode) {
             const bossCtrl = this.bossNode.getComponent(BossController);
-            if (bossCtrl) bossCtrl.resetBoss(GameConfig.boss.spawnPos.x, GameConfig.boss.spawnPos.y);
+            if (bossCtrl) bossCtrl.resetBossData();
             const bossVisual = this.bossNode.getComponent(BossVisual);
             if (bossVisual) bossVisual.resetVisual();
         }
@@ -91,16 +111,37 @@ export class GameManager extends Component {
     }
 
     private _onPlayerDied = (): void => {
-        this.changeState(GameState.Lose);
-    };
-
-    private _onBossDied = (): void => {
-        // Clear all bullets before showing win
+        if (this._state !== GameState.Playing) return;
+        // Release bullets immediately
         if (this.bulletWorldNode) {
             const pool = this.bulletWorldNode.getComponent(BulletPool);
             if (pool) pool.releaseAll();
         }
-        this.changeState(GameState.Win);
+        this.changeState(GameState.Dying);
+        if (this.transitionCtrl) {
+            this.transitionCtrl.playDeath('player', () => {
+                this.changeState(GameState.Lose);
+            });
+        } else {
+            this.changeState(GameState.Lose);
+        }
+    };
+
+    private _onBossDied = (): void => {
+        if (this._state !== GameState.Playing) return;
+        // Release bullets immediately
+        if (this.bulletWorldNode) {
+            const pool = this.bulletWorldNode.getComponent(BulletPool);
+            if (pool) pool.releaseAll();
+        }
+        this.changeState(GameState.Dying);
+        if (this.transitionCtrl) {
+            this.transitionCtrl.playDeath('boss', () => {
+                this.changeState(GameState.Win);
+            });
+        } else {
+            this.changeState(GameState.Win);
+        }
     };
 
     onDestroy(): void {
