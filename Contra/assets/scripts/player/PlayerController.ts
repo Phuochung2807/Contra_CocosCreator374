@@ -5,22 +5,17 @@ import { ArenaManager } from '../map/ArenaManager';
 import { GameConfig } from '../config/GameConfig';
 import { GameManager, GameState } from '../core/GameManager';
 
-const { ccclass } = _decorator;
+const { ccclass, property } = _decorator;
 
 const _tmpVec3 = new Vec3();
 
 @ccclass('PlayerController')
 export class PlayerController extends Component {
+    @property(JoystickInput)
+    joystickInput: JoystickInput | null = null;
+
     private _keyboard: KeyboardInput | null = null;
     private _joystick: JoystickInput | null = null;
-
-    get inputSource(): IInputSource | null {
-        return this._keyboard;
-    }
-
-    get joystickSource(): IInputSource | null {
-        return this._joystick;
-    }
 
     onLoad(): void {
         let kb = this.getComponent(KeyboardInput);
@@ -28,10 +23,7 @@ export class PlayerController extends Component {
             kb = this.addComponent(KeyboardInput);
         }
         this._keyboard = kb;
-    }
-
-    setJoystick(joystick: JoystickInput): void {
-        this._joystick = joystick;
+        this._joystick = this.joystickInput;
     }
 
     onDestroy(): void {
