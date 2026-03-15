@@ -4,6 +4,7 @@ import { BulletFactory } from '../bullet/BulletFactory';
 import { BulletOwner } from '../bullet/BulletData';
 import { GameConfig } from '../config/GameConfig';
 import { GameManager, GameState } from '../core/GameManager';
+import { AudioManager } from '../audio/AudioManager';
 
 const { ccclass, property } = _decorator;
 
@@ -82,5 +83,6 @@ export class ShootComponent extends Component {
             this.bulletSpeed, this.bulletRadius,
             this.bulletLifetime, this.bulletDamage,
         );
+        AudioManager.instance?.playSFXShoot();
     }
 }

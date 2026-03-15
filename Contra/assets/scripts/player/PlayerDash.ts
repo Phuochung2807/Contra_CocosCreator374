@@ -4,6 +4,7 @@ import { HealthComponent } from '../entity/HealthComponent';
 import { ArenaManager } from '../map/ArenaManager';
 import { GameConfig } from '../config/GameConfig';
 import { GameManager, GameState } from '../core/GameManager';
+import { AudioManager } from '../audio/AudioManager';
 
 const { ccclass } = _decorator;
 
@@ -86,6 +87,7 @@ export class PlayerDash extends Component {
         // Start dash
         this._state = DashState.Dashing;
         this._timer = 0;
+        AudioManager.instance?.playSFXDash();
         if (this._health) {
             this._health.invincible = true;
         }

@@ -79,4 +79,9 @@ export const GameConfig = {
         screenShakeLarge: 12,
         screenShakeDuration: 0.2,
     },
+
+    audio: {
+        bgmVolume: 0.5,
+        sfxVolume: 0.8,
+    },
 };
