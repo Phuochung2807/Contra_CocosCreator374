@@ -1,9 +1,11 @@
-import { _decorator, Component, ProgressBar, Label, Node, UIOpacity } from 'cc';
+import { _decorator, Component, ProgressBar, Label, Node, UIOpacity, Widget, view } from 'cc';
 import { EventManager } from '../core/EventManager';
 import { HealthComponent } from '../entity/HealthComponent';
 import { GameManager, GameState } from '../core/GameManager';
 
 const { ccclass, property } = _decorator;
+
+const MARGIN = 20;
 
 @ccclass('HUDManager')
 export class HUDManager extends Component {
@@ -22,12 +24,22 @@ export class HUDManager extends Component {
     @property(Node)
     bossNode: Node | null = null;
 
+    @property(Node)
+    playerHPContainer: Node | null = null;
+
+    @property(Node)
+    bossHPContainer: Node | null = null;
+
+    @property(Node)
+    levelContainer: Node | null = null;
+
     private _playerHealth: HealthComponent | null = null;
     private _bossHealth: HealthComponent | null = null;
     private _opacity: UIOpacity | null = null;
 
     start(): void {
         this._cacheRefs();
+        this._setupWidgets();
         this._opacity = this.getComponent(UIOpacity) || this.addComponent(UIOpacity);
         this._setVisible(false);
     }
@@ -47,6 +59,45 @@ export class HUDManager extends Component {
     private _setVisible(visible: boolean): void {
         if (this._opacity) {
             this._opacity.opacity = visible ? 255 : 0;
+        }
+    }
+
+    private _setupWidgets(): void {
+        // Player HP — top-left
+        if (this.playerHPContainer) {
+            const w = this.playerHPContainer.getComponent(Widget) || this.playerHPContainer.addComponent(Widget);
+            w.isAlignTop = true;
+            w.isAlignLeft = true;
+            w.isAlignBottom = false;
+            w.isAlignRight = false;
+            w.top = MARGIN;
+            w.left = MARGIN;
+            w.alignMode = Widget.AlignMode.ON_WINDOW_RESIZE;
+        }
+
+        // Boss HP — top-right
+        if (this.bossHPContainer) {
+            const w = this.bossHPContainer.getComponent(Widget) || this.bossHPContainer.addComponent(Widget);
+            w.isAlignTop = true;
+            w.isAlignRight = true;
+            w.isAlignBottom = false;
+            w.isAlignLeft = false;
+            w.top = MARGIN;
+            w.right = MARGIN;
+            w.alignMode = Widget.AlignMode.ON_WINDOW_RESIZE;
+        }
+
+        // Level label — top-center
+        if (this.levelContainer) {
+            const w = this.levelContainer.getComponent(Widget) || this.levelContainer.addComponent(Widget);
+            w.isAlignTop = true;
+            w.isAlignLeft = true;
+            w.isAlignRight = true;
+            w.isAlignBottom = false;
+            w.top = MARGIN;
+            w.left = 0;
+            w.right = 0;
+            w.alignMode = Widget.AlignMode.ON_WINDOW_RESIZE;
         }
     }
 
