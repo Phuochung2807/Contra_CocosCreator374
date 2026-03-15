@@ -3,12 +3,12 @@ export const GameConfig = {
     design: { width: 1920, height: 1080 },
 
     player: {
-        speed: 400,
+        speed: 200,
         hp: 100,
         size: { width: 48, height: 48 },
         colliderRadius: 20,
         shootCooldown: 0.15,
-        shootRange: 1200,
+        shootRange: 150,
         bulletSpeed: 800,
         bulletRadius: 8,
         bulletLifetime: 2.0,
